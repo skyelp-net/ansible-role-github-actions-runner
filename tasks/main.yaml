@@ -1,0 +1,48 @@
+---
+- name: Variables | Check mandatory
+  ansible.builtin.assert:
+    that:
+      - gh_runner_config_url is defined
+      - gh_runner_config_token is defined
+
+- name: Variables | Set installation path
+  ansible.builtin.set_fact:
+    # Set a exclusive path for the GitHub Actions Runner in order to support
+    # multiple repository or organizations configured inside the same host.
+    #
+    # WHY? `config.sh` when registering the host will write some credentials and
+    # files to the path in order to identify the host, although inoffensive,
+    # this approach make it complicated to share the same host among multiple
+    # GitHub Actions Runners (even though it is possible).
+    #
+    # Therefore, each GitHub repository or organization URL will be hashed to
+    # compose the GitHub Actions Runner path.
+    #
+    # yamllint disable-line rule:line-length
+    gh_runner_path: "{{ gh_runner_installation_path }}/{{ gh_runner_version }}/{{ gh_runner_config_url | hash('sha256') }}"
+
+  tags:
+    - install
+    - configure
+    - uninstall
+
+- name: GitHub Actions Runner | Linux | Import Download tasks
+  ansible.builtin.import_tasks: "linux_download.yaml"
+  tags:
+    - install
+  when: ansible_facts['os_family'] != "Windows"
+
+
+- name: GitHub Actions Runner | Linux | Import Install tasks
+  ansible.builtin.import_tasks: "linux_install.yaml"
+  tags:
+    - install
+    - configure
+  when: ansible_facts['os_family'] != "Windows"
+
+- name: GitHub Actions Runner | Linux | Include Uninstall tasks
+  ansible.builtin.include_tasks: "linux_uninstall.yaml"
+  when: gh_runner_remove_host
+  tags:
+    - uninstall
+  when: ansible_facts['os_family'] != "Windows"
