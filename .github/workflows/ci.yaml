@@ -37,8 +37,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install yamllint ansible ansible-lint
 
-          yamllint -c .github/actions/config/yamllint.yaml .
-          ansible-lint -c .github/actions/config/ansible.yaml .
+          yamllint -c .yamllint .
+          ansible-lint .
 
 #      - name: Galaxy | Import
 #        if: ${{ github.ref == 'refs/heads/main' }}

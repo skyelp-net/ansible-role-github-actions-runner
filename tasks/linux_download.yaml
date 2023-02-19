@@ -4,7 +4,7 @@
     path: "{{ gh_runner_workspace_path }}"
     owner: "{{ gh_runner_service_user }}"
     state: directory
-    mode: 0755
+    mode: "0755"
   become: true
 
 - name: GitHub Actions Runner | Check if versions is already installed
@@ -21,15 +21,15 @@
         # yamllint disable-line rule:line-length
         url: "{{ gh_runner_download_base_url }}/v{{ gh_runner_version }}/actions-runner-{{ gh_runner_architecture }}-{{ gh_runner_version }}.tar.gz"
         dest: "{{ tmp_download_path }}/actions-runner-{{ gh_runner_version }}.tar.gz"
-        mode: 0400
-        force: yes
+        mode: "0400"
+        force: true
       become: true
 
     - name: GitHub Actions Runner | Create installation directory
       ansible.builtin.file:
         path: "{{ gh_runner_path }}"
         state: directory
-        mode: 0755
+        mode: "0755"
       become: true
 
     - name: GitHub Actions Runner | Unarchive package
@@ -44,7 +44,7 @@
       ansible.builtin.file:
         path: "{{ gh_runner_path }}"
         owner: "{{ gh_runner_service_user }}"
-        mode: 0755
+        mode: "0755"
         recurse: true
       become: true
 

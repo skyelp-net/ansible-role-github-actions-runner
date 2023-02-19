@@ -42,7 +42,8 @@
 
 - name: GitHub Actions Runner | Linux | Include Uninstall tasks
   ansible.builtin.include_tasks: "linux_uninstall.yaml"
-  when: gh_runner_remove_host
   tags:
     - uninstall
-  when: ansible_facts['os_family'] != "Windows"
+  when:
+    - ansible_facts['os_family'] != "Windows"
+    - gh_runner_remove_host

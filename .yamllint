@@ -1,0 +1,11 @@
+---
+extends: default
+
+rules:
+  document-start: disable
+  new-lines: disable
+  line-length:
+    max: 120
+  key-duplicates: enable
+ignore: |
+  .github
