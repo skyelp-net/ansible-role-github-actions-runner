@@ -70,7 +70,7 @@
         chdir: "{{ gh_runner_path }}"
       changed_when: abandoned_credentials.stat.exists
 
-- name: GitHub Actions Runner | Configure Runner
+- name: GitHub Actions Runner | Configure Persistant Runner
   become: true
   become_user: "{{ gh_runner_service_user }}"
   environment:
@@ -87,6 +87,30 @@
         --labels {{ gh_runner_config_labels | join(',') }}
     chdir: "{{ gh_runner_path }}"
   register: config_host_command
+  when: not gh_runner_ephemeral
+  changed_when: not is_this_host_token_registered.stat.exists
+  tags:
+    - configure
+
+- name: GitHub Actions Runner | Configure Ephemeral Runner
+  become: true
+  become_user: "{{ gh_runner_service_user }}"
+  environment:
+    RUNNER_ALLOW_RUNASROOT: "{{ gh_runner_allow_runasroot }}"
+  ansible.builtin.command:
+    cmd: |-
+      {{ gh_runner_path }}/config.sh \
+        --unattended --replace --disableupdate \
+        --url {{ gh_runner_config_url }} \
+        --token {{ gh_runner_config_token }} \
+        --name {{ gh_runner_config_name }} \
+        --runnergroup "{{ gh_runner_config_runnergroup }}" \
+        --work {{ gh_runner_workspace_path }} \
+        --labels {{ gh_runner_config_labels | join(',') }} \
+        --ephemeral
+    chdir: "{{ gh_runner_path }}"
+  register: config_host_command
+  when: gh_runner_ephemeral
   changed_when: not is_this_host_token_registered.stat.exists
   tags:
     - configure
